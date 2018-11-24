@@ -11,6 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+//Route::get('/', function () {
+//    return view('welcome');
+//});
+
+Route::group(['namespace'=>'Api'], function(){
+
+    Route::post('/login', ['uses'=>'AuthController@login']);
+
 });
