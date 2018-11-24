@@ -19,4 +19,9 @@ Route::group(['namespace'=>'Api'], function(){
 
     Route::post('/login', ['uses'=>'AuthController@login']);
 
+    Route::group(['middleware'=>['TokenCheck']], function(){
+        Route::get('/getBusinesses', ['uses'=>'BusinessController@getBusinesses']);
+        Route::get('/getBusiness', ['uses'=>'BusinessController@getBusiness']);
+    });
+
 });
