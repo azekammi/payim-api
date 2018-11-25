@@ -27,14 +27,11 @@ class PaymentsController extends ApiController{
             $rules['user_id'] = "required|exists:users_businesses,user_id";
             $rules['amount'] = "required";
             $response["status"] = 2;
-//            echo "test";
-//            var_dump($input);
 
             $validator = Validator::make($input, $rules);
 
             if (!$validator->fails()) {
 
-            //if (true) {
                 $response["status"] = 3;
 
                 $codeIsPresent = true;
@@ -120,8 +117,6 @@ class PaymentsController extends ApiController{
 
         $input = Request::all();
         if(isset($input)) {
-//            $rules['users'] = "required|array";
-//            $rules['users.*'] = "required|array";
             $rules['code'] = "required";
 
             $validator = Validator::make($input, $rules);
@@ -176,6 +171,52 @@ class PaymentsController extends ApiController{
                         "status" => 1
                     ];
                 }
+            }
+        }
+
+        return response()->json($response);
+    }
+
+    public function history(){
+
+        $response["status"] = 0;
+
+        $input = Request::all();
+        if(isset($input)) {
+            $user = DB::table("all_users")
+                ->where(["token" => $input["token"]])
+                ->select("id", "type")
+                ->first();
+
+            $transactions = DB::table("transactions")
+                ->join("payments", "payments.id", "=", "transactions.payment_id", "left");
+
+            if($user->type == 0){
+                $transactions->where(["from_user_id" => $user->id])
+                    ->join("all_users", "all_users.id", "=", "transactions.to_user_id", "left")
+                    ->join("users_businesses", "users_businesses.user_id", "=", "transactions.to_user_id", "left");
+            }
+            else{
+                $transactions->where(["to_user_id" => $user->id])
+                    ->join("all_users", "all_users.id", "=", "transactions.from_user_id", "left")
+                    ->join("users_businesses", "users_businesses.user_id", "=", "transactions.from_user_id", "left");
+            }
+
+            $transactions = $transactions->select("transactions.date", "name", "payments.discount", "payments.amount")
+                ->get();
+
+            $response = [
+                "status" => 1,
+                "transactions" => []
+            ];
+
+            foreach ($transactions as $transaction){
+                $response["transactions"][] = [
+                    "date" => $transaction->date,
+                    "name" => $transaction->name,
+                    "discount" => $transaction->discount,
+                    "amount" => $transaction->amount,
+                ];
             }
         }
 

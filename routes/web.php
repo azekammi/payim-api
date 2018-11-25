@@ -18,14 +18,16 @@
 Route::group(['namespace'=>'Api'], function(){
 
     Route::post('/login', ['uses'=>'AuthController@login']);
-    Route::get('/generatecode', ['uses'=>'PaymentsController@generateCode']);
 
     Route::group(['middleware'=>['TokenCheck']], function(){
-        Route::get('/getbusinesses', ['uses'=>'BusinessController@getBusinesses']);
         Route::get('/getBusiness', ['uses'=>'BusinessController@getBusiness']);
         Route::get('/getBusinessCategories', ['uses'=>'BusinessCategoryController@getBusinessCategories']);
         Route::get('/checkCode', ['uses'=>'PaymentsController@checkCode']);
+        Route::get('/generateCode', ['uses'=>'PaymentsController@generateCode']);
+        Route::get('/getBusinesses', ['uses'=>'BusinessController@getBusinesses']);
         Route::get('/pay', ['uses'=>'PaymentsController@pay']);
+        Route::get('/replenish', ['uses'=>'AccountController@replenish']);
+        Route::get('/history', ['uses'=>'PaymentsController@history']);
     });
 
 });
