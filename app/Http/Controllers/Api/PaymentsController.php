@@ -26,10 +26,16 @@ class PaymentsController extends ApiController{
         if(isset($input)) {
             $rules['user_id'] = "required|exists:users_businesses,user_id";
             $rules['amount'] = "required";
+            $response["status"] = 2;
+//            echo "test";
+//            var_dump($input);
 
             $validator = Validator::make($input, $rules);
 
             if (!$validator->fails()) {
+
+            //if (true) {
+                $response["status"] = 3;
 
                 $codeIsPresent = true;
                 while ($codeIsPresent) {
@@ -52,7 +58,8 @@ class PaymentsController extends ApiController{
                 DB::table('payments')->insert(
                     [
                         'generated_code' => $code,
-                        'amount' => $input["amount"],
+                        'amount' => $input["amount"]*100,
+                        //'amount' => 11,
                         'business_user_id' => $input["user_id"],
                         'discount' => $business->discount,
                         'status' => 0
@@ -92,7 +99,7 @@ class PaymentsController extends ApiController{
                 if($payments){
                     $response = [
                         "status" => 1,
-                        "amount" => $payments->amount,
+                        "amount" => number_format($payments->amount/100, 2, '.', ''),
                         "discount" => $payments->discount,
                         "business" => [
                             "user_id" => $payments->user_id,
@@ -123,15 +130,15 @@ class PaymentsController extends ApiController{
 
                 $user = DB::table("all_users")
                     ->where(["token" => $input["token"], "type" => 0])
-                    ->select("id")
+                    ->select("id", "balance")
                     ->first();
 
                 $payment = DB::table("payments")
                     ->where(["generated_code" => $input["code"], "status" => 0])
-                    ->select("id", "business_user_id")
+                    ->select("id", "business_user_id", "amount", "discount")
                     ->first();
 
-                if($user && $payment){
+                if($user && $payment && ($user->balance >= $payment->amount * (1-$payment->discount/100)) ){
                     DB::table('transactions')->insert(
                         [
                             'from_user_id' => $user->id,
@@ -146,6 +153,22 @@ class PaymentsController extends ApiController{
                         ->update(
                             [
                                 'status' => 1
+                            ]
+                        );
+
+                    DB::table('all_users')
+                        ->where(["id" => $user->id])
+                        ->update(
+                            [
+                                'balance'           => \DB::raw( 'balance - '.$payment->amount * (1-$payment->discount/100) ),
+                            ]
+                        );
+
+                    DB::table('all_users')
+                        ->where(["id" => $payment->business_user_id])
+                        ->update(
+                            [
+                                'balance'           => \DB::raw( 'balance + '.$payment->amount * (1-$payment->discount/100) ),
                             ]
                         );
 

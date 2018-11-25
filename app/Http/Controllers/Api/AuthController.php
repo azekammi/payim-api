@@ -49,10 +49,11 @@ class AuthController extends ApiController{
 
                         $response = [
                             "status" => 1,
+                            "id" => $user->id,
                             "username" => $user->username,
                             "type" => $user->type,
                             "account_id" => $user->account_id,
-                            "balance" => $user->balance,
+                            "balance" => number_format($user->balance/100, 2, '.', ''),
                             "token" => $token
                         ];
 
