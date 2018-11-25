@@ -29,7 +29,7 @@ class BusinessController extends ApiController{
                 ->join("users_businesses", "users_businesses.user_id", "=", "all_users.id", "left")
                 ->join("business_categories", "business_categories.id", "=", "users_businesses.category_id", "left")
                 ->where(["type" => 1])
-                ->select("all_users.id", "account_id", "balance", "users_businesses.name as user_name", "description", "image", "logo", "discount", "business_categories.name as category_name")
+                ->select("all_users.id", "account_id", "users_businesses.name as user_name", "description", "image", "logo", "discount", "business_categories.name as category_name")
                 ->get();
 
             $response = [
@@ -41,7 +41,6 @@ class BusinessController extends ApiController{
                 $response["businesses"][] = [
                     "id" => $business->id,
                     "account_id" => $business->account_id,
-                    "balance" => $business->balance,
                     "user_name" => $business->user_name,
                     "description" => $business->description,
                     "image" => $business->image,

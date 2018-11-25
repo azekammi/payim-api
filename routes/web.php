@@ -25,6 +25,7 @@ Route::group(['namespace'=>'Api'], function(){
         Route::get('/getBusinessCategories', ['uses'=>'BusinessCategoryController@getBusinessCategories']);
         Route::get('/generateCode', ['uses'=>'PaymentsController@generateCode']);
         Route::get('/checkCode', ['uses'=>'PaymentsController@checkCode']);
+        Route::get('/pay', ['uses'=>'PaymentsController@pay']);
     });
 
 });

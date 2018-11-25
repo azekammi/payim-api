@@ -64,6 +64,28 @@ class AuthController extends ApiController{
 
                             $response["name"] = $userFullInfo->name;
                             $response["surname"] = $userFullInfo->surname;
+
+                            $response["featured_businesses"] = [];
+
+                            $popularBusinesses = DB::table("all_users")
+                                ->join("users_businesses", "users_businesses.user_id", "=", "all_users.id", "left")
+                                ->join("business_categories", "business_categories.id", "=", "users_businesses.category_id", "left")
+                                ->where(["type" => 1, "is_popular" => 1 ])
+                                ->select("all_users.id", "account_id", "users_businesses.name as user_name", "description", "image", "logo", "discount", "business_categories.name as category_name")
+                                ->get();
+
+                            foreach ($popularBusinesses as $popularBusiness){
+                                $response["featured_businesses"][] = [
+                                    "id" => $popularBusiness->id,
+                                    "account_id" => $popularBusiness->account_id,
+                                    "user_name" => $popularBusiness->user_name,
+                                    "description" => $popularBusiness->description,
+                                    "image" => $popularBusiness->image,
+                                    "logo" => $popularBusiness->logo,
+                                    "discount" => $popularBusiness->discount,
+                                    "category_name" => $popularBusiness->category_name,
+                                ];
+                            }
                         }
                         else{
                             $userFullInfo = DB::table("users_businesses")

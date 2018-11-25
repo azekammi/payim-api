@@ -106,4 +106,56 @@ class PaymentsController extends ApiController{
 
         return response()->json($response);
     }
+
+    public function pay(){
+
+        $response["status"] = 0;
+
+        $input = Request::all();
+        if(isset($input)) {
+//            $rules['users'] = "required|array";
+//            $rules['users.*'] = "required|array";
+            $rules['code'] = "required";
+
+            $validator = Validator::make($input, $rules);
+
+            if (!$validator->fails()) {
+
+                $user = DB::table("all_users")
+                    ->where(["token" => $input["token"], "type" => 0])
+                    ->select("id")
+                    ->first();
+
+                $payment = DB::table("payments")
+                    ->where(["generated_code" => $input["code"], "status" => 0])
+                    ->select("id", "business_user_id")
+                    ->first();
+
+                if($user && $payment){
+                    DB::table('transactions')->insert(
+                        [
+                            'from_user_id' => $user->id,
+                            'to_user_id' => $payment->business_user_id,
+                            'payment_id' => $payment->id,
+                            'date' => date("Y-m-d H:i:s")
+                        ]
+                    );
+
+                    DB::table('payments')
+                        ->where(["id" => $payment->id])
+                        ->update(
+                            [
+                                'status' => 1
+                            ]
+                        );
+
+                    $response = [
+                        "status" => 1
+                    ];
+                }
+            }
+        }
+
+        return response()->json($response);
+    }
 }
