@@ -2,6 +2,8 @@
 
 return [
 
-    "token_length" => 15
+    "token_length" => 15,
+
+    "generated_code_length" => 4,
 
 ];

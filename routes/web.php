@@ -22,6 +22,9 @@ Route::group(['namespace'=>'Api'], function(){
     Route::group(['middleware'=>['TokenCheck']], function(){
         Route::get('/getBusinesses', ['uses'=>'BusinessController@getBusinesses']);
         Route::get('/getBusiness', ['uses'=>'BusinessController@getBusiness']);
+        Route::get('/getBusinessCategories', ['uses'=>'BusinessCategoryController@getBusinessCategories']);
+        Route::get('/generateCode', ['uses'=>'PaymentsController@generateCode']);
+        Route::get('/checkCode', ['uses'=>'PaymentsController@checkCode']);
     });
 
 });
